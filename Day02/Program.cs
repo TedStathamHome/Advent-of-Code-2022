@@ -12,20 +12,97 @@ namespace Day02
         {
             Console.WriteLine("Advent of Code 2022: Day 2");
 
-            PartA();
-            PartB();
+            //var strategyGuide = File.ReadLines(@"./StrategyGuide-test.txt").ToList();
+            var strategyGuide = File.ReadLines(@"./StrategyGuide-full.txt").ToList();
+            Console.WriteLine($"* Lines in strategy guide: {strategyGuide.Count:N0}");
+
+            PartA(strategyGuide);
+            PartB(strategyGuide);
         }
 
-        private static void PartA()
+        private static void PartA(List<string> strategyGuide)
         {
             Console.WriteLine("\r\n**********");
             Console.WriteLine("* Part A");
+
+            var score = 0;
+
+            foreach (var entry in strategyGuide)
+            {
+                score += ShapeScore(entry[2]) + OutcomeScore(entry);
+            }
+
+            Console.WriteLine($"*** Your score is: {score:N0}");
         }
 
-        private static void PartB()
+        private static int ShapeScore(char shape)
+        {
+            return " XYZ".IndexOf(shape);
+        }
+
+        private static int OutcomeScore(string entry)
+        {
+            var winningOutcomes = new List<string>()
+            {
+                "A Y",  // Rock beaten by Paper
+                "B Z",  // Paper beaten by Scissors
+                "C X"   // Scissors beaten by Rock
+            };
+
+            var drawOutcomes = new List<string>()
+            {
+                "A X",  // Rock vs Rock
+                "B Y",  // Paper vs Paper
+                "C Z"   // Scissors vs Scissors
+            };
+
+            if (winningOutcomes.IndexOf(entry) != -1)
+                return 6;
+
+            if (drawOutcomes.IndexOf(entry) != -1)
+                return 3;
+
+            return 0;
+        }
+
+        private static void PartB(List<string> strategyGuide)
         {
             Console.WriteLine("\r\n**********");
             Console.WriteLine("* Part B");
+
+            var score = 0;
+
+            foreach (var entry in strategyGuide)
+            {
+                var decodedEntry = DecodeStrategy(entry);
+                score += ShapeScore(decodedEntry[2]) + OutcomeScore(decodedEntry);
+            }
+
+            Console.WriteLine($"*** Your score is: {score:N0}");
+        }
+
+        private static string DecodeStrategy(string entry)
+        {
+            var result = entry.Substring(0, 2);
+
+            if (entry[2] == 'X')        // Lose
+            {
+                var losingOptions = "ZXY";  // Scissors, Rock, Paper
+                result += losingOptions["ABC".IndexOf(entry[0])];
+                return result;
+            }
+            else if (entry[2] == 'Y')   // Draw
+            {
+                var drawingOptions = "XYZ"; // Rock, Paper, Scissors
+                result += drawingOptions["ABC".IndexOf(entry[0])];
+                return result;
+            }
+            else                        // Win
+            {
+                var winningOptions = "YZX"; // Paper, Scissors, Rock
+                result += winningOptions["ABC".IndexOf(entry[0])];
+                return result;
+            }
         }
     }
 }
