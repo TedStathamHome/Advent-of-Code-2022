@@ -11,9 +11,7 @@ namespace Day01
         static void Main(string[] args)
         {
             Console.WriteLine("Advent of Code 2022: Day 1");
-            //var elfCaloriesRaw = File.ReadLines(@"./ElfCalories-test.txt").ToList();
-			var elfCaloriesRaw = File.ReadLines(@"./ElfCalories-full.txt").ToList();
-
+			var elfCaloriesRaw = File.ReadLines($"./ElfCalories-{((args.Length > 0 && args[0].Trim().ToLower() == "test") ? "test" : "full")}.txt").ToList();
 			var elvesInParty = elfCaloriesRaw.Where(e => string.IsNullOrWhiteSpace(e)).ToList().Count + 1;
 
             Console.WriteLine($"* Elf calorie entries read: {elfCaloriesRaw.Count:N0}");

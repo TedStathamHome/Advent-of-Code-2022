@@ -11,8 +11,9 @@ namespace Day08
         static void Main(string[] args)
         {
             Console.WriteLine("Advent of Code 2022: Day 8");
+			var puzzleInputRaw = File.ReadLines($"./PuzzleInput-{((args.Length > 0 && args[0].Trim().ToLower() == "test") ? "test" : "full")}.txt").ToList();
 
-            PartA();
+			PartA();
             PartB();
         }
 

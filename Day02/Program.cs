@@ -11,10 +11,9 @@ namespace Day02
         static void Main(string[] args)
         {
             Console.WriteLine("Advent of Code 2022: Day 2");
+            var strategyGuide = File.ReadLines($"./StrategyGuide-{((args.Length > 0 && args[0].Trim().ToLower() == "test") ? "test" : "full")}.txt").ToList();
 
-            //var strategyGuide = File.ReadLines(@"./StrategyGuide-test.txt").ToList();
-            var strategyGuide = File.ReadLines(@"./StrategyGuide-full.txt").ToList();
-            Console.WriteLine($"* Lines in strategy guide: {strategyGuide.Count:N0}");
+			Console.WriteLine($"* Lines in strategy guide: {strategyGuide.Count:N0}");
 
             PartA(strategyGuide);
             PartB(strategyGuide);
