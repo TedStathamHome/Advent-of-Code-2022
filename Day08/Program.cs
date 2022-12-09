@@ -13,128 +13,123 @@ namespace Day08
             Console.WriteLine("Advent of Code 2022: Day 8");
 			var puzzleInputRaw = File.ReadLines($"./PuzzleInput-{((args.Length > 0 && args[0].Trim().ToLower() == "test") ? "test" : "full")}.txt").ToList();
 
-			var gridHorizontal = puzzleInputRaw.Select(i => i.ToCharArray()).ToList();
-			var gridVertical = CalculateVerticalGrid(gridHorizontal);
+			var treeGrid = puzzleInputRaw.Select(i => i.ToCharArray()).ToList();
 
-			Console.WriteLine($"* Tree grid is {gridHorizontal[0].Length:N0} x {gridHorizontal.Count:N0} trees");
+			Console.WriteLine($"* Tree grid is {treeGrid[0].Length:N0} x {treeGrid.Count:N0} trees");
+            Console.WriteLine("* Tree grid:");
+            for (int r = 0; r < treeGrid.Count; r++)
+            {
+                Console.WriteLine($"** {string.Join("", treeGrid[r])}");
+            }
 
-			PartA(gridHorizontal, gridVertical);
-            PartB();
+            PartA(treeGrid);
+            PartB(treeGrid);
         }
 
-		private static List<char[]> CalculateVerticalGrid(List<char[]> grid)
-		{
-			var gridVertical = new List<char[]>();
-
-			for (int i = 0; i < grid[0].Length; i++)
-			{
-				var colArray = grid.Select(r => r[i]).ToArray();
-				gridVertical.Add(colArray);
-			}
-
-			return gridVertical;
-		}
-
-        private static void PartA(List<char[]> gridHorizontal, List<char[]> gridVertical)
+        private static void PartA(List<char[]> treeGrid)
         {
             Console.WriteLine("\r\n**********");
             Console.WriteLine("* Part A");
 
-			var treeVisibility = new bool[gridHorizontal[0].Length, gridVertical[0].Length];
+			var treeVisibility = new bool[treeGrid[0].Length, treeGrid.Count];
 
 			// all trees on the border of the grid are visible
-			// var treesOnBorder = gridHorizontal[0].Length * 2 + (gridVertical[0].Length - 2) * 2;
-
 			// mark all trees on the top and bottom (north and south) rows as visible
-			for (int i = 0; i < gridHorizontal[0].Length; i++)
+			for (int i = 0; i < treeGrid[0].Length; i++)
 			{
 				treeVisibility[i, 0] = true;
-				treeVisibility[i, gridHorizontal.Count - 1] = true;
+				treeVisibility[i, treeGrid.Count - 1] = true;
 			}
 			
 			// mark all trees on the left and right (west and east) columns as visible
-			for (int i = 1; i < gridVertical[0].Length - 1; i++)
+			for (int i = 1; i < treeGrid.Count - 1; i++)
 			{
 				treeVisibility[0, i] = true;
-				treeVisibility[gridVertical.Count - 1, i] = true;
+                treeVisibility[treeGrid[0].Length - 1, i] = true;
 			}
 
-			Console.WriteLine("* Normal tree grid:");
-			for (int r = 0; r < gridHorizontal.Count; r++)
-			{
-				Console.WriteLine($"** {string.Join("", gridHorizontal[r])}");
-			}
+            for (int r = 1; r < treeGrid.Count - 1; r++)
+            {
+                for (int c = 1; c < treeGrid[0].Length - 1; c++)
+                {
+                    var currentTree = treeGrid[r][c];
 
-			Console.WriteLine("\r\n* Rotated tree grid:");
-			for (int r = 0; r < gridVertical.Count; r++)
-			{
-				Console.WriteLine($"** {string.Join("", gridVertical[r])}");
-			}
+                    if (treeVisibility[c, r])
+                        continue;
 
-			// process the grid west/east, skipping the border trees
-			for (int c = 1; c < gridHorizontal[0].Length - 1; c++)
-			{
-				for (int r = 1; r < gridVertical[0].Length - 1; r++)
-				{
-					if (treeVisibility[c, r])
-						continue;
-					
-					var treeHeight = gridHorizontal[r][c];
-					
-					// is the tree visible from the west?
-					if (!(gridHorizontal[r][..(c - 1)].Count(h => h >= treeHeight) > 0))
-					{
-						treeVisibility[c, r] = true;
-						continue;
-					}
+                    // check visibility to west
+                    var treeIsVisble = true;
+                    for (int vw = c - 1; vw >= 0; vw--)
+                    {
+                        treeIsVisble = treeGrid[r][vw] < currentTree;
+                        
+                        if (!treeIsVisble)
+                            break;
+                    }
 
-					// is the tree visible from the east?
-					if (!(gridHorizontal[r][(c + 1)..].Count(h => h >= treeHeight) > 0))
-					{
-						treeVisibility[c, r] = true;
-						continue;
-					}
-				}
-			}
+                    if (treeIsVisble)
+                    {
+                        treeVisibility[c, r] = treeIsVisble;
+                        continue;
+                    }
 
-			if (1 == 0)
-			{
+                    // check visibility to east
+                    treeIsVisble = true;
+                    for (int ve = c + 1; ve < treeGrid[0].Length; ve++)
+                    {
+                        treeIsVisble = treeGrid[r][ve] < currentTree;
 
-				// process the grid north/south, skipping the border trees
-				for (int c = 1; c < gridVertical[0].Length - 1; c++)
-				{
-					for (int r = 1; r < gridHorizontal[0].Length - 1; r++)
-					{
-						if (treeVisibility[r, c])
-							continue;
+                        if (!treeIsVisble)
+                            break;
+                    }
 
-						var treeHeight = gridVertical[r][c];
+                    if (treeIsVisble)
+                    {
+                        treeVisibility[c, r] = treeIsVisble;
+                        continue;
+                    }
 
-						// is the tree visible from the north?
-						if (!(gridVertical[r][..(c - 1)].Count(h => h >= treeHeight) > 0))
-						{
-							treeVisibility[r, c] = true;
-							continue;
-						}
+                    // check visibility to north
+                    treeIsVisble = true;
+                    for (int vn = r - 1; vn >= 0; vn--)
+                    {
+                        treeIsVisble = treeGrid[vn][c] < currentTree;
 
-						// is the tree visible from the south?
-						if (!(gridVertical[r][(c + 1)..].Count(h => h >= treeHeight) > 0))
-						{
-							treeVisibility[r, c] = true;
-							continue;
-						}
-					}
-				}
+                        if (!treeIsVisble)
+                            break;
+                    }
 
-			}
+                    if (treeIsVisble)
+                    {
+                        treeVisibility[c, r] = treeIsVisble;
+                        continue;
+                    }
+
+                    // check visibility to south
+                    treeIsVisble = true;
+                    for (int vs = r + 1; vs < treeGrid.Count; vs++)
+                    {
+                        treeIsVisble = treeGrid[vs][c] < currentTree;
+
+                        if (!treeIsVisble)
+                            break;
+                    }
+
+                    if (treeIsVisble)
+                    {
+                        treeVisibility[c, r] = treeIsVisble;
+                        continue;
+                    }
+                }
+            }
 
 			Console.WriteLine("\r\n* Visibility");
 			var visibleTrees = 0;
-			for (int c = 0; c < gridHorizontal[0].Length; c++)
+			for (int c = 0; c < treeGrid[0].Length; c++)
 			{
 				var line = string.Empty;
 				
-				for (int r = 0; r < gridVertical[0].Length; r++)
+				for (int r = 0; r < treeGrid.Count; r++)
 				{
 					visibleTrees += treeVisibility[c, r] ? 1 : 0;
 					line += treeVisibility[c, r] ? "*" : " ";
@@ -146,10 +141,73 @@ namespace Day08
 			Console.WriteLine($"*** Number of visible trees: {visibleTrees:N0}");
         }
 
-        private static void PartB()
+        private static void PartB(List<char[]> treeGrid)
         {
             Console.WriteLine("\r\n**********");
             Console.WriteLine("* Part B");
+
+            var scenicScores = new List<int>();
+
+            for (int r = 0; r < treeGrid.Count; r++)
+            {
+                for (int c = 0; c < treeGrid[0].Length; c++)
+                {
+                    var currentTree = treeGrid[r][c];
+                    var treesToWest = 0;
+                    var treesToEast = 0;
+                    var treesToNorth = 0;
+                    var treesToSouth = 0;
+
+                    // calculate how far west we can see
+                    for (int vw = c - 1; vw >= 0; vw--)
+                    {
+                        if (vw >= 0)
+                        {
+                            treesToWest++;
+                            if (treeGrid[r][vw] >= currentTree)
+                                break;
+                        }
+                    }
+
+                    // calculate how far east we can see
+                    for (int ve = c + 1; ve < treeGrid[0].Length; ve++)
+                    {
+                        if (ve < treeGrid[0].Length)
+                        {
+                            treesToEast++;
+                            if (treeGrid[r][ve] >= currentTree)
+                                break;
+                        }
+                    }
+
+                    // calculate how far north we can see
+                    for (int vn = r - 1; vn >= 0; vn--)
+                    {
+                        if (vn >= 0)
+                        {
+                            treesToNorth++;
+                            if (treeGrid[vn][c] >= currentTree)
+                                break;
+                        }
+                    }
+
+                    // calculate how far south we can see
+                    for (int vs = r + 1; vs < treeGrid.Count; vs++)
+                    {
+                        if (vs < treeGrid.Count)
+                        {
+                            treesToSouth++;
+                            if (treeGrid[vs][c] >= currentTree)
+                                break;
+                        }
+                    }
+
+                    scenicScores.Add(treesToWest * treesToEast * treesToNorth * treesToSouth);
+                }
+            }
+
+            var highestScenicScore = scenicScores.Max();
+            Console.WriteLine($"*** Highest scenic score: {highestScenicScore:N0}");
         }
     }
 }
