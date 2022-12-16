@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 
 namespace Day11
 {
@@ -10,12 +9,12 @@ namespace Day11
 
     class Monkey
     {
-        public List<BigInteger> HeldItems { get; set; } = new();
+        public List<ulong> HeldItems { get; set; } = new();
         public long InspectedItems { get; set; } = 0;
         public Char WorryOp { get; set; } = ' ';
         public bool WorryOpValueIsOldValue { get; set; } = false;
-        public BigInteger WorryOpValue { get; set; } = 0;
-        public BigInteger DivTestValue { get; set; } = 1;
+        public ulong WorryOpValue { get; set; } = 0;
+        public ulong DivTestValue { get; set; } = 1;
         public int ThrowToMonkeyOnTrue { get; set; } = 0;
         public int ThrowToMonkeyOnFalse { get; set; } = 0;
     }
@@ -47,14 +46,14 @@ namespace Day11
                 var monkey = new Monkey();
                 
                 monkey.HeldItems = puzzleInput[i + 1].Replace("  Starting items: ", "")
-                    .Split(',').ToList().Select(h => BigInteger.Parse(h)).ToList();
+                    .Split(',').ToList().Select(h => ulong.Parse(h)).ToList();
 
                 var opDetails = puzzleInput[i + 2].Trim().Split(' ').ToList();
                 monkey.WorryOp = opDetails[4][0];
                 monkey.WorryOpValueIsOldValue = opDetails[5] == "old";
-                monkey.WorryOpValue = opDetails[5] == "old" ? (BigInteger)0 : BigInteger.Parse(opDetails[5]);
+                monkey.WorryOpValue = opDetails[5] == "old" ? (ulong)0 : ulong.Parse(opDetails[5]);
 
-                monkey.DivTestValue = BigInteger.Parse(puzzleInput[i + 3].Trim().Split(' ').ToList()[3]);
+                monkey.DivTestValue = ulong.Parse(puzzleInput[i + 3].Trim().Split(' ').ToList()[3]);
                 monkey.ThrowToMonkeyOnTrue = int.Parse(puzzleInput[i + 4].Trim().Split(' ').ToList()[5]);
                 monkey.ThrowToMonkeyOnFalse = int.Parse(puzzleInput[i + 5].Trim().Split(' ').ToList()[5]);
 
@@ -82,10 +81,10 @@ namespace Day11
 
         private static void MonkeyBusiness(int monkey, bool adjustWorryLevel = true)
         {
-            foreach (BigInteger item in monkeys[monkey].HeldItems)
+            foreach (ulong item in monkeys[monkey].HeldItems)
             {
-                BigInteger newItem = item;
-                BigInteger worryOpValue = monkeys[monkey].WorryOpValueIsOldValue ? newItem : monkeys[monkey].WorryOpValue;
+                ulong newItem = item;
+                ulong worryOpValue = monkeys[monkey].WorryOpValueIsOldValue ? newItem : monkeys[monkey].WorryOpValue;
 
                 if (monkeys[monkey].WorryOp == '*')
                 {
@@ -97,12 +96,12 @@ namespace Day11
                 }
 
                 if (adjustWorryLevel == true)
-                    newItem = newItem / (BigInteger)3;
+                    newItem = newItem / (ulong)3;
                 
                 monkeys[monkey].InspectedItems++;
 
                 int monkeyToThrowTo = -1;
-                if (newItem % monkeys[monkey].DivTestValue == (BigInteger)0)
+                if (newItem % monkeys[monkey].DivTestValue == (ulong)0)
                 {
                     monkeyToThrowTo = monkeys[monkey].ThrowToMonkeyOnTrue;
                 }
